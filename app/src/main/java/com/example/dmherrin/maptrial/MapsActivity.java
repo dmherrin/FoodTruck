@@ -68,6 +68,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(KindKitchen).title("Kind Kitchen").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
         mMap.addMarker(new MarkerOptions().position(OffTheRails).title("Off the Rails BBQ").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
 
+        //test code
 
     }
 }
