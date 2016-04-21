@@ -1,8 +1,13 @@
 package com.example.dmherrin.maptrial;
 
+import android.content.Context;
 import android.graphics.PorterDuff;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -14,7 +19,29 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
+
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    public static final String TAG = "foodtruck";
+    public static final String PROFILE = "dmherrin";
+    public static final String MAG_KEY = "truck";
+
+
+    private Handler handler = new Handler();
+
+    ArrayList<FoodTruck> foodtruckArrayList;
+    ArrayAdapter<FoodTruck> foodtruckArrayAdapter;
 
     private GoogleMap mMap;
 
@@ -35,7 +62,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+
+        foodtruckArrayList = new ArrayList<>();
+        foodtruckArrayAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, foodtruckArrayList);
+
+        //ListView earthquakeListView = (ListView)findViewById(R.id.quakeListView);
+        //earthquakeListView.setAdapter(earthquakeArrayAdapter);
+
+        Log.i(TAG, "in onDownloadFoodtrucks");
+
+
+/*
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                download();
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();*/
+
+        //SharedPreferences sp = getSharedPreferences(PROFILE, Activity.MODE_PRIVATE);
+        //minMagnitude = sp.getFloat(MAG_KEY, 0f);
+
     }
+
 
 
     /**
@@ -53,8 +105,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //makes the map start where it is zoomed in on Fayetteville city limits
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(36.0764, -94.1608), 12.5f));
 
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                download();
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        try {
+            t.join();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.i(TAG,"Before for loop");
+        for (int i = 0; i < foodtruckArrayList.size(); i++) {
+            Log.i(TAG,"In for loop");
+            String address = foodtruckArrayList.get(i).getLocation();
+            String title1 = foodtruckArrayList.get(i).getTruck();
+            LatLng location = getLocationFromAddress(this, address);
+            mMap.addMarker(new MarkerOptions().position(location).title(title1).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+            Log.i(TAG, title1);
+            Log.i(TAG, address);
+
+
+        }
         // Hard codes the position for the following locations
-        LatLng YachtClub = new LatLng(36.071926, -94.157825);
+        /*LatLng YachtClub = new LatLng(36.071926, -94.157825);
         LatLng Baller = new LatLng(36.120140, -94.150971);
         LatLng Nomad = new LatLng(36.066036, -94.161964);
         LatLng NaturalState = new LatLng(36.077075, -94.168486);
@@ -70,7 +148,92 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.addMarker(new MarkerOptions().position(Greenhouse).title("Greenhouse Grill Food Cart").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
         mMap.addMarker(new MarkerOptions().position(KindKitchen).title("Kind Kitchen").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
         mMap.addMarker(new MarkerOptions().position(OffTheRails).title("Off the Rails BBQ").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+*/
 
 
+    }
+
+    public void download() {
+
+        Log.i(TAG, "in download");
+
+        try {
+            URL url = new URL(getString(R.string.foodtrucks_url));
+            URLConnection connection = url.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+
+            int responseCode = httpURLConnection.getResponseCode();
+            final InputStream inputStream = httpURLConnection.getInputStream();
+            BufferedReader reader =
+                    new BufferedReader(new InputStreamReader(inputStream));
+
+            try {
+                if(responseCode == HttpURLConnection.HTTP_OK) {
+
+                    Log.i(TAG, "HTTP OK");
+
+                    String temp;
+                    reader.readLine();
+                    while((temp = reader.readLine()) != null) {
+                        String[] data = temp.split(",");
+                        final String truck = data[0];
+                        final String location  = data[1];
+
+
+                        foodtruckArrayList.add(new FoodTruck
+                                (truck, location));
+                        //mMap.addMarker(new MarkerOptions().position(truckLocation).title(truck).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+
+                    }
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            foodtruckArrayAdapter.notifyDataSetChanged();
+                            Log.i(TAG, foodtruckArrayList.toString());
+                        }
+                    });
+                }
+            }
+            finally {
+                ((HttpURLConnection) connection).disconnect();
+                inputStream.close();
+                reader.close();
+            }
+        }
+        catch (MalformedURLException e) {
+            Log.i(TAG, "MalformedURLException.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+
+
+    public LatLng getLocationFromAddress(Context context,String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 1);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
+        }
+
+        return p1;
     }
 }
