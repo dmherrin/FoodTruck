@@ -5,7 +5,7 @@ package com.example.dmherrin.maptrial;
  */
 import android.provider.BaseColumns;
 
-public final class FavoriteSQLiteDatabaseContract {
+public final class FavoriteDatabaseContract {
 
     public static final int    DATABASE_VERSION    = 1;
     public static final String DATABASE_NAME       = "favorites.db";
@@ -14,7 +14,7 @@ public final class FavoriteSQLiteDatabaseContract {
 
     // To prevent someone from accidentally instantiating the contract class,
     // give it an empty private constructor.
-    private FavoriteSQLiteDatabaseContract() {}
+    private FavoriteDatabaseContract() {}
 
     /* Inner class that defines the table contents */
     public static abstract class QuakeColumns implements BaseColumns {
