@@ -7,11 +7,19 @@ public class FoodTruck {
 
     private String truck;
     private String location;
+    private String yelpUrl;
+    private String phoneNumber;
+    private String menuUrl;
 
     public FoodTruck() {}
     public FoodTruck(String t, String l) {
         truck = t; location = l;
     }
+
+    public String getYelpUrl()  {return yelpUrl;}
+    public String getPhoneNumber()  {return phoneNumber;}
+
+    public String getMenuUrl() {return menuUrl;}
 
     public String getTruck()     {return truck;}
     public String getLocation() {return location;}

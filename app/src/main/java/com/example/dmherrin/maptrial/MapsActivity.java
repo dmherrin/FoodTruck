@@ -1,22 +1,32 @@
 package com.example.dmherrin.maptrial;
 
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnInfoWindowClickListener;
+import com.google.android.gms.maps.GoogleMap.OnMarkerClickListener;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.BufferedReader;
@@ -31,7 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,OnMarkerClickListener,OnInfoWindowClickListener {
 
     public static final String TAG = "foodtruck";
     public static final String PROFILE = "dmherrin";
@@ -105,6 +115,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //makes the map start where it is zoomed in on Fayetteville city limits
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(36.0764, -94.1608), 12.5f));
 
+//        //make custom InfoWindowAdapter to allow multiple
+//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+//
+//            @Override
+//            public View getInfoWindow(Marker arg0) {
+//                return null;
+//            }
+//
+//            @Override
+//            public View getInfoContents(Marker marker) {
+//
+//                Context context = getApplicationContext();
+//
+//                LinearLayout info = new LinearLayout(context);
+//                info.setOrientation(LinearLayout.VERTICAL);
+//
+//                TextView title = new TextView(context);
+//                title.setTextColor(Color.BLACK);
+//                title.setGravity(Gravity.CENTER);
+//                title.setTypeface(null, Typeface.BOLD);
+//                title.setText(marker.getTitle());
+//
+//                TextView snippet = new TextView(context);
+//                snippet.setTextColor(Color.GRAY);
+//                snippet.setText(marker.getSnippet());
+//
+//                info.addView(title);
+//                info.addView(snippet);
+//
+//                return info;
+//            }
+//        });
+
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -125,7 +168,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
-            mMap.addMarker(new MarkerOptions().position(location).title(title1).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+            mMap.addMarker(new MarkerOptions().position(location)
+                    .title(title1)
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
             Log.i(TAG, title1);
             Log.i(TAG, address);
 
@@ -235,5 +280,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
         return p1;
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return false;
+    }
+
+    @Override
+    public void onInfoWindowClick(Marker marker) {
+        FoodTruck tempTruck = new FoodTruck();
+        Intent intent = new Intent(MapsActivity.this,DisplayFoodTruckInfoActivity.class);
+        for(int i = 0; i < foodtruckArrayList.size(); i++){
+            tempTruck = foodtruckArrayList.get(i);
+            if(tempTruck.getTruck().equals(marker.getTitle())){
+                intent.putExtra("truckName",tempTruck.getTruck());
+                intent.putExtra("location",tempTruck.getLocation());
+            }
+        }
+        startActivity(intent);
     }
 }
