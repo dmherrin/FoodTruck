@@ -115,39 +115,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //makes the map start where it is zoomed in on Fayetteville city limits
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(36.0764, -94.1608), 12.5f));
 
-//        //make custom InfoWindowAdapter to allow multiple
-//        mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-//
-//            @Override
-//            public View getInfoWindow(Marker arg0) {
-//                return null;
-//            }
-//
-//            @Override
-//            public View getInfoContents(Marker marker) {
-//
-//                Context context = getApplicationContext();
-//
-//                LinearLayout info = new LinearLayout(context);
-//                info.setOrientation(LinearLayout.VERTICAL);
-//
-//                TextView title = new TextView(context);
-//                title.setTextColor(Color.BLACK);
-//                title.setGravity(Gravity.CENTER);
-//                title.setTypeface(null, Typeface.BOLD);
-//                title.setText(marker.getTitle());
-//
-//                TextView snippet = new TextView(context);
-//                snippet.setTextColor(Color.GRAY);
-//                snippet.setText(marker.getSnippet());
-//
-//                info.addView(title);
-//                info.addView(snippet);
-//
-//                return info;
-//            }
-//        });
-
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -289,13 +256,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        FoodTruck tempTruck = new FoodTruck();
+        FoodTruck tempTruck;
         Intent intent = new Intent(MapsActivity.this,DisplayFoodTruckInfoActivity.class);
         for(int i = 0; i < foodtruckArrayList.size(); i++){
             tempTruck = foodtruckArrayList.get(i);
             if(tempTruck.getTruck().equals(marker.getTitle())){
                 intent.putExtra("truckName",tempTruck.getTruck());
                 intent.putExtra("location",tempTruck.getLocation());
+                if(tempTruck.getTruck().equals("Baller")){
+                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
+                    intent.putExtra("phoneNumber", "(479) 619-6830");
+                    intent.putExtra("menu", "");
+                }
+                else if(tempTruck.getTruck().equals("Nomad's Natural Plate")){
+                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
+                    intent.putExtra("phoneNumber", "(479) 435-5312");
+                    intent.putExtra("menu", "");
+                }
+                else if(tempTruck.getTruck().equals("Off The Rails BBQ")){
+                    intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
+                    intent.putExtra("phoneNumber", "(479) 856-4341");
+                    intent.putExtra("menu", "");
+                }
+                else if(tempTruck.getTruck().equals("Burton's Comfort Creamery")){
+                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
+                    intent.putExtra("phoneNumber", "");
+                    intent.putExtra("menu", "http://www.burtonscreamery.com/");
+                }
+                else if(tempTruck.getTruck().equals("Natural State Sandwiches")){
+                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
+                    intent.putExtra("phoneNumber", "(479) 225-1103");
+                    intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
+                }
+                else if(tempTruck.getTruck().equals("Greenhouse Grill Food Cart")){
+                    intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
+                    intent.putExtra("phoneNumber", "(479) 444-8909");
+                    intent.putExtra("menu", "");
+                }
             }
         }
         startActivity(intent);

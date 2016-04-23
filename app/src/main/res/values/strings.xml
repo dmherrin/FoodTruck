@@ -4,7 +4,7 @@
     <string name="foodtrucks_url">http://csce.uark.edu/~dmherrin/foodtrucklocation.txt</string>
     <string name="backButton">Back</string>
     <string name="menu">Menu:</string>
-    <string name="yelp_page">Yelp Page:</string>
+    <string name="yelp_page">Yelp/Zomato Page:</string>
     <string name="phone_number">Phone Number:</string>
     <string name="truck_address">Address:</string>
 </resources>
