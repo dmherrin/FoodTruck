@@ -69,9 +69,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+//                .findFragmentById(R.id.map);
+//        mapFragment.getMapAsync(this);
         //Spinner creates drop-down listview-type menu that can be accessed by clicking next to the app name
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.getBackground().setColorFilter(getResources().getColor(R.color.colorUltraLight), PorterDuff.Mode.SRC_ATOP);
@@ -124,6 +124,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         favoriteDB.close();
@@ -141,6 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.clear();
         //makes the map start where it is zoomed in on Fayetteville city limits
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(36.0764, -94.1608), 12.5f));
         mMap.getUiSettings().setZoomControlsEnabled(true);
@@ -364,35 +373,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(resultCode == resultFavorite){
                 Log.v(TAG, truckName);
                 favoriteHelper.insert(favoriteDB, truckName);
-//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                    this.recreate();
-//                }
-//                else{
-//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
-//                    finish();
-//                    startActivity(i);
-//                }
             }
             else if(resultCode == resultRemoveFavorite){
                 favoriteHelper.remove(favoriteDB, truckName);
-//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                    this.recreate();
-//                }
-//                else{
-//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
-//                    finish();
-//                    startActivity(i);
-//                }
             }
             else if(resultCode == resultBack){
-//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-//                    this.recreate();
-//                }
-//                else{
-//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
-//                    finish();
-//                    startActivity(i);
-//                }
+
             }
         }
     }
