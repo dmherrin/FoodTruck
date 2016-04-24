@@ -43,6 +43,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.*;
 
@@ -93,7 +94,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.i(TAG, "in onDownloadFoodtrucks");
 
-
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                download();
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
+        try {
+            t.join();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 /*
         Runnable r = new Runnable() {
             @Override
@@ -109,7 +123,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        favoriteDB.close();
+    }
 
     /**
      * Manipulates the map once available.
@@ -125,36 +143,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap = googleMap;
         //makes the map start where it is zoomed in on Fayetteville city limits
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(36.0764, -94.1608), 12.5f));
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnMarkerClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                download();
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();
-        try {
-            t.join();
-        }
-        catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         Log.i(TAG,"Before for loop");
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
             Log.i(TAG,"In for loop");
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
-            if(searchByTitle(title1)){
-                mMap.addMarker(new MarkerOptions().position(location)
-                    .title(title1)
-                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
-            }
-            else {
-                mMap.addMarker(new MarkerOptions().position(location)
-                        .title(title1)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+            if(location != null) {
+                if (searchByTitle(title1)) {
+                    mMap.addMarker(new MarkerOptions().position(location)
+                            .title(title1)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                } else {
+                    mMap.addMarker(new MarkerOptions().position(location)
+                            .title(title1)
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+                }
             }
             Log.i(TAG, title1);
             Log.i(TAG, address);
@@ -206,12 +215,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     reader.readLine();
                     while((temp = reader.readLine()) != null) {
                         String[] data = temp.split(",");
-                        final String truck = data[0];
-                        final String location  = data[1];
+                        Log.v(TAG,temp);
+                        if(data.length == 2) {
+                            final String truck = data[0];
+                            final String location = data[1];
+                            foodtruckArrayList.add(new FoodTruck(truck, location));
+                            Log.v(TAG,"Truck added to arraylist");
+                        }
 
 
-                        foodtruckArrayList.add(new FoodTruck
-                                (truck, location));
+
                         //mMap.addMarker(new MarkerOptions().position(truckLocation).title(truck).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
 
                     }
@@ -284,12 +297,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 intent.putExtra("location",tempTruck.getLocation());
                 isFavorite = searchByTitle(tempTruck.getTruck());
                 intent.putExtra("isFavorite",isFavorite);
-                if(tempTruck.getTruck().equals("Baller")){
+                if(tempTruck.getTruck().equals("baller")){
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 619-6830");
                     intent.putExtra("menu", "");
                 }
-                else if(tempTruck.getTruck().equals("Nomad's Natural Plate")){
+                else if(tempTruck.getTruck().equals("nomads")){
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 435-5312");
                     intent.putExtra("menu", "");
@@ -299,17 +312,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     intent.putExtra("phoneNumber", "(479) 856-4341");
                     intent.putExtra("menu", "");
                 }
-                else if(tempTruck.getTruck().equals("Burton's Comfort Creamery")){
+                else if(tempTruck.getTruck().equals("burton")){
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
                     intent.putExtra("phoneNumber", "");
                     intent.putExtra("menu", "http://www.burtonscreamery.com/");
                 }
-                else if(tempTruck.getTruck().equals("Natural State Sandwiches")){
+                else if(tempTruck.getTruck().equals("nstate")){
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 225-1103");
                     intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
                 }
-                else if(tempTruck.getTruck().equals("Greenhouse Grill Food Cart")){
+                else if(tempTruck.getTruck().equals("greenh")){
                     intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 444-8909");
                     intent.putExtra("menu", "");
@@ -319,7 +332,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         startActivityForResult(intent,requestCode);
     }
     private Boolean searchByTitle(String title){
-        String[] projection = {COLUMN_FAVORITE};
+        String[] projection = {_ID,COLUMN_FAVORITE};
         String selection = COLUMN_FAVORITE + " =?";
         String[] selectionArgs = {title};
 
@@ -329,7 +342,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             while(!cursor.isAfterLast()){
                 String favorite;
                 favorite = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE));
-                if(favorite == title){
+                if(favorite.equals(title)){
                     return true;
                 }
                 cursor.moveToNext();
@@ -345,37 +358,41 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int resultFavorite = 1;
         int resultRemoveFavorite = 2;
         int resultBack = 3;
-        Intent intent = getIntent();
-        String truckName = intent.getStringExtra("truckName");
+
+        String truckName = data.getStringExtra("truckName");
         if(requestCode == 1){
-            if(resultCode == 1){
+            if(resultCode == resultFavorite){
+                Log.v(TAG, truckName);
                 favoriteHelper.insert(favoriteDB, truckName);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    this.recreate();
-                }
-                else{
-                    finish();
-                    startActivity(intent);
-                }
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//                    this.recreate();
+//                }
+//                else{
+//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
+//                    finish();
+//                    startActivity(i);
+//                }
             }
-            else if(resultCode == 2){
+            else if(resultCode == resultRemoveFavorite){
                 favoriteHelper.remove(favoriteDB, truckName);
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    this.recreate();
-                }
-                else{
-                    finish();
-                    startActivity(intent);
-                }
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//                    this.recreate();
+//                }
+//                else{
+//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
+//                    finish();
+//                    startActivity(i);
+//                }
             }
-            else if(resultCode == 3){
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    this.recreate();
-                }
-                else{
-                    finish();
-                    startActivity(intent);
-                }
+            else if(resultCode == resultBack){
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+//                    this.recreate();
+//                }
+//                else{
+//                    Intent i = new Intent(MapsActivity.this, MapsActivity.class);
+//                    finish();
+//                    startActivity(i);
+//                }
             }
         }
     }

@@ -53,7 +53,7 @@ public class FavoriteSQLiteOpenHelper extends SQLiteOpenHelper{
 
     public void remove(SQLiteDatabase db, String favoriteTruckName){
 
-        db.delete(TABLE_NAME, COLUMN_FAVORITE + "=" + favoriteTruckName, null);
+        db.execSQL("delete from " + TABLE_NAME + " where " + COLUMN_FAVORITE + " = '" + favoriteTruckName + "'");
     }
 
 }

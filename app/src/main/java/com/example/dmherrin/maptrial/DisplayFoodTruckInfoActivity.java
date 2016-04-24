@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,6 +13,7 @@ import org.w3c.dom.Text;
 
 public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
+    public static final String TAG = "displayinfo";
     String name;
 
     @Override
@@ -41,6 +43,7 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
         }
         TextView truckName = (TextView)findViewById(R.id.food_truck_name);
         truckName.setText(name);
+        Log.v(TAG,name);
 
         TextView truckAddress = (TextView)findViewById(R.id.address);
         truckAddress.setText(address);
@@ -66,6 +69,7 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
         Intent intent = new Intent(DisplayFoodTruckInfoActivity.this,MapsActivity.class);
         intent.putExtra("truckName",name);
+        Log.v(TAG,name);
         setResult(1,intent);
         finish();
     }
