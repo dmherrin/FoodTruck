@@ -7,4 +7,6 @@
     <string name="yelp_page">Yelp/Zomato Page:</string>
     <string name="phone_number">Phone Number:</string>
     <string name="truck_address">Address:</string>
+    <string name="mark_as_favorite">Mark As Favorite</string>
+    <string name="remove_favorite">Remove Favorite</string>
 </resources>

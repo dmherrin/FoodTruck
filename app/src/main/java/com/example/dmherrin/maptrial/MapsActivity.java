@@ -2,14 +2,18 @@ package com.example.dmherrin.maptrial;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -40,6 +44,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.*;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,OnMarkerClickListener,OnInfoWindowClickListener {
 
@@ -53,7 +58,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     ArrayList<FoodTruck> foodtruckArrayList;
     ArrayAdapter<FoodTruck> foodtruckArrayAdapter;
 
+    Boolean isFavorite = false;
     private GoogleMap mMap;
+    private FavoriteSQLiteOpenHelper favoriteHelper;
+    private SQLiteDatabase favoriteDB;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +87,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         //ListView earthquakeListView = (ListView)findViewById(R.id.quakeListView);
         //earthquakeListView.setAdapter(earthquakeArrayAdapter);
+
+        favoriteHelper = new FavoriteSQLiteOpenHelper(this);
+        favoriteDB = favoriteHelper.getWritableDatabase();
 
         Log.i(TAG, "in onDownloadFoodtrucks");
 
@@ -135,9 +146,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
-            mMap.addMarker(new MarkerOptions().position(location)
+            if(searchByTitle(title1)){
+                mMap.addMarker(new MarkerOptions().position(location)
                     .title(title1)
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+            }
+            else {
+                mMap.addMarker(new MarkerOptions().position(location)
+                        .title(title1)
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
+            }
             Log.i(TAG, title1);
             Log.i(TAG, address);
 
@@ -256,6 +274,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onInfoWindowClick(Marker marker) {
+        int requestCode = 1;
         FoodTruck tempTruck;
         Intent intent = new Intent(MapsActivity.this,DisplayFoodTruckInfoActivity.class);
         for(int i = 0; i < foodtruckArrayList.size(); i++){
@@ -263,6 +282,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if(tempTruck.getTruck().equals(marker.getTitle())){
                 intent.putExtra("truckName",tempTruck.getTruck());
                 intent.putExtra("location",tempTruck.getLocation());
+                isFavorite = searchByTitle(tempTruck.getTruck());
+                intent.putExtra("isFavorite",isFavorite);
                 if(tempTruck.getTruck().equals("Baller")){
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 619-6830");
@@ -295,6 +316,67 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
-        startActivity(intent);
+        startActivityForResult(intent,requestCode);
+    }
+    private Boolean searchByTitle(String title){
+        String[] projection = {COLUMN_FAVORITE};
+        String selection = COLUMN_FAVORITE + " =?";
+        String[] selectionArgs = {title};
+
+        Cursor cursor = favoriteDB.query(TABLE_NAME,projection,selection,selectionArgs,null,null,null);
+        if(cursor != null && cursor.getCount() > 0){
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()){
+                String favorite;
+                favorite = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE));
+                if(favorite == title){
+                    return true;
+                }
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return false;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        int resultFavorite = 1;
+        int resultRemoveFavorite = 2;
+        int resultBack = 3;
+        Intent intent = getIntent();
+        String truckName = intent.getStringExtra("truckName");
+        if(requestCode == 1){
+            if(resultCode == 1){
+                favoriteHelper.insert(favoriteDB, truckName);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    this.recreate();
+                }
+                else{
+                    finish();
+                    startActivity(intent);
+                }
+            }
+            else if(resultCode == 2){
+                favoriteHelper.remove(favoriteDB, truckName);
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    this.recreate();
+                }
+                else{
+                    finish();
+                    startActivity(intent);
+                }
+            }
+            else if(resultCode == 3){
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    this.recreate();
+                }
+                else{
+                    finish();
+                    startActivity(intent);
+                }
+            }
+        }
     }
 }

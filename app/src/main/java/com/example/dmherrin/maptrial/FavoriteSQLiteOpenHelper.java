@@ -15,6 +15,8 @@ import android.util.Log;
 
 import com.google.android.gms.maps.model.Marker;
 
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.*;
+
 public class FavoriteSQLiteOpenHelper extends SQLiteOpenHelper{
 
     private static final String TAG = "MARKER";
@@ -47,6 +49,11 @@ public class FavoriteSQLiteOpenHelper extends SQLiteOpenHelper{
         values.put(FavoriteDatabaseContract.QuakeColumns.COLUMN_FAVORITE, favoriteTruckName);
 
         db.insert(FavoriteDatabaseContract.QuakeColumns.TABLE_NAME, null, values);
+    }
+
+    public void remove(SQLiteDatabase db, String favoriteTruckName){
+
+        db.delete(TABLE_NAME, COLUMN_FAVORITE + "=" + favoriteTruckName, null);
     }
 
 }

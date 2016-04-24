@@ -72,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="5dp"
+        android:paddingBottom="15dp"
         android:paddingTop="5dp">
         <TextView
             android:layout_width="wrap_content"
@@ -83,8 +83,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:autoLink="phone"
-            android:id="@+id/phone_number" />
+            android:id="@+id/phone_number"
+            />
     </LinearLayout>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/mark_as_favorite"
+        android:onClick="onFavorite"
+        android:enabled="false"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:id="@+id/mark_favorite"/>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remove_favorite"
+        android:onClick="onRemoveFavorite"
+        android:enabled="false"
+        android:clickable="false"
+        android:visibility="invisible"
+        android:id="@+id/remove_favorite"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
