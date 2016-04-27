@@ -1,15 +1,12 @@
 package com.example.dmherrin.maptrial;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
@@ -42,7 +39,31 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
             favoriteButton.setEnabled(true);
         }
         TextView truckName = (TextView)findViewById(R.id.food_truck_name);
-        truckName.setText(name);
+        //truckName.setText(name);
+        if(name.compareTo("baller") == 0)
+        {
+            truckName.setText("Baller");
+        }
+        else if(name.compareTo("nomads") == 0)
+        {
+            truckName.setText("Nomad's Natural Plate");
+        }
+        else if(name.compareTo("nstate") == 0)
+        {
+            truckName.setText("Natural State Sandwiches");
+        }
+        else if(name.compareTo("burton") == 0)
+        {
+            truckName.setText("Burton's Comfort Creamery");
+        }
+        else if(name.compareTo("greenh") == 0)
+        {
+            truckName.setText("Greenhouse Grille Food Cart");
+        }
+        else if(name.compareTo("otrbbq") == 0)
+        {
+            truckName.setText("Off The Rail BBQ");
+        }
         Log.v(TAG,name);
 
         TextView truckAddress = (TextView)findViewById(R.id.address);

@@ -1,26 +1,19 @@
 package com.example.dmherrin.maptrial;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Color;
 import android.graphics.PorterDuff;
-import android.graphics.Typeface;
 import android.location.Address;
 import android.location.Geocoder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.widget.CursorAdapter;
 import android.util.Log;
-import android.view.Gravity;
-import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -43,9 +36,10 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.*;
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.COLUMN_FAVORITE;
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.TABLE_NAME;
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns._ID;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,OnMarkerClickListener,OnInfoWindowClickListener {
 
@@ -63,6 +57,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private FavoriteSQLiteOpenHelper favoriteHelper;
     private SQLiteDatabase favoriteDB;
+
+    private FoodTruckSQLiteOpenHelper foodtruckHelper;
+    private SQLiteDatabase foodtruckDB;
+    String[] cols = {FoodTruckDatabaseContact.TruckColumns.COLUMN_TRUCK, FoodTruckDatabaseContact.TruckColumns.COLUMN_LOCATION};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +91,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         favoriteHelper = new FavoriteSQLiteOpenHelper(this);
         favoriteDB = favoriteHelper.getWritableDatabase();
 
+        foodtruckHelper = new FoodTruckSQLiteOpenHelper(this);
+        foodtruckDB = foodtruckHelper.getWritableDatabase();
+
         Log.i(TAG, "in onDownloadFoodtrucks");
 
         Runnable r = new Runnable() {
@@ -104,8 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         t.start();
         try {
             t.join();
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
 /*
@@ -157,13 +158,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnInfoWindowClickListener(this);
 
 
-        Log.i(TAG,"Before for loop");
+        //Step 2: Call function to put database contents in arraylist
+        foodtruckArrayList = getMyFoodTrucks();
+
+
+        Log.i(TAG, "Before for loop");
+        //Step 4: Iterate through arraylist and addmarkers for each database object
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
-            Log.i(TAG,"In for loop");
+            Log.i(TAG, "In for loop");
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
-            if(location != null) {
+            if (location != null) {
                 if (searchByTitle(title1)) {
                     mMap.addMarker(new MarkerOptions().position(location)
                             .title(title1)
@@ -201,6 +207,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+
+
+
     public void download() {
 
         Log.i(TAG, "in download");
@@ -216,22 +225,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     new BufferedReader(new InputStreamReader(inputStream));
 
             try {
-                if(responseCode == HttpURLConnection.HTTP_OK) {
+                if (responseCode == HttpURLConnection.HTTP_OK) {
 
                     Log.i(TAG, "HTTP OK");
 
                     String temp;
                     reader.readLine();
-                    while((temp = reader.readLine()) != null) {
+                    while ((temp = reader.readLine()) != null) {
                         String[] data = temp.split(",");
-                        Log.v(TAG,temp);
-                        if(data.length == 2) {
+                        Log.v(TAG, temp);
+                        if (data.length == 2) {
                             final String truck = data[0];
                             final String location = data[1];
-                            foodtruckArrayList.add(new FoodTruck(truck, location));
-                            Log.v(TAG,"Truck added to arraylist");
+                            //Step 1: Add Truck, Location to FoodTruck Database
+                            foodtruckHelper.remove(foodtruckDB, truck);
+                            foodtruckHelper.insert(foodtruckDB, truck, location);
+                            //foodtruckArrayList.add(new FoodTruck(truck, location));
+                            Log.v(TAG, "Truck added to arraylist");
                         }
-
 
 
                         //mMap.addMarker(new MarkerOptions().position(truckLocation).title(truck).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
@@ -240,19 +251,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            foodtruckArrayAdapter.notifyDataSetChanged();
-                            Log.i(TAG, foodtruckArrayList.toString());
+                            //foodtruckArrayAdapter.notifyDataSetChanged();
+                            //Log.i(TAG, foodtruckArrayList.toString());
                         }
                     });
                 }
-            }
-            finally {
+            } finally {
                 ((HttpURLConnection) connection).disconnect();
                 inputStream.close();
                 reader.close();
             }
-        }
-        catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
             Log.i(TAG, "MalformedURLException.");
             e.printStackTrace();
         } catch (IOException e) {
@@ -262,9 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-
-
-    public LatLng getLocationFromAddress(Context context,String strAddress) {
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
 
         Geocoder coder = new Geocoder(context);
         List<Address> address;
@@ -279,7 +286,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             location.getLatitude();
             location.getLongitude();
 
-            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+            p1 = new LatLng(location.getLatitude(), location.getLongitude());
 
         } catch (Exception ex) {
 
@@ -298,60 +305,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onInfoWindowClick(Marker marker) {
         int requestCode = 1;
         FoodTruck tempTruck;
-        Intent intent = new Intent(MapsActivity.this,DisplayFoodTruckInfoActivity.class);
-        for(int i = 0; i < foodtruckArrayList.size(); i++){
+        Intent intent = new Intent(MapsActivity.this, DisplayFoodTruckInfoActivity.class);
+        for (int i = 0; i < foodtruckArrayList.size(); i++) {
             tempTruck = foodtruckArrayList.get(i);
-            if(tempTruck.getTruck().equals(marker.getTitle())){
-                intent.putExtra("truckName",tempTruck.getTruck());
-                intent.putExtra("location",tempTruck.getLocation());
+            if (tempTruck.getTruck().equals(marker.getTitle())) {
+                intent.putExtra("truckName", tempTruck.getTruck());
+                intent.putExtra("location", tempTruck.getLocation());
                 isFavorite = searchByTitle(tempTruck.getTruck());
-                intent.putExtra("isFavorite",isFavorite);
-                if(tempTruck.getTruck().equals("baller")){
+                intent.putExtra("isFavorite", isFavorite);
+                if (tempTruck.getTruck().equals("baller")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 619-6830");
                     intent.putExtra("menu", "");
-                }
-                else if(tempTruck.getTruck().equals("nomads")){
+                } else if (tempTruck.getTruck().equals("nomads")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 435-5312");
                     intent.putExtra("menu", "");
-                }
-                else if(tempTruck.getTruck().equals("Off The Rails BBQ")){
+                } else if (tempTruck.getTruck().equals("Off The Rails BBQ")) {
                     intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 856-4341");
                     intent.putExtra("menu", "");
-                }
-                else if(tempTruck.getTruck().equals("burton")){
+                } else if (tempTruck.getTruck().equals("burton")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
                     intent.putExtra("phoneNumber", "");
                     intent.putExtra("menu", "http://www.burtonscreamery.com/");
-                }
-                else if(tempTruck.getTruck().equals("nstate")){
+                } else if (tempTruck.getTruck().equals("nstate")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 225-1103");
                     intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
-                }
-                else if(tempTruck.getTruck().equals("greenh")){
+                } else if (tempTruck.getTruck().equals("greenh")) {
                     intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 444-8909");
                     intent.putExtra("menu", "");
                 }
             }
         }
-        startActivityForResult(intent,requestCode);
+        startActivityForResult(intent, requestCode);
     }
-    private Boolean searchByTitle(String title){
-        String[] projection = {_ID,COLUMN_FAVORITE};
+
+    private Boolean searchByTitle(String title) {
+        String[] projection = {_ID, COLUMN_FAVORITE};
         String selection = COLUMN_FAVORITE + " =?";
         String[] selectionArgs = {title};
 
-        Cursor cursor = favoriteDB.query(TABLE_NAME,projection,selection,selectionArgs,null,null,null);
-        if(cursor != null && cursor.getCount() > 0){
+        Cursor cursor = favoriteDB.query(TABLE_NAME, projection, selection, selectionArgs, null, null, null);
+        if (cursor != null && cursor.getCount() > 0) {
             cursor.moveToFirst();
-            while(!cursor.isAfterLast()){
+            while (!cursor.isAfterLast()) {
                 String favorite;
                 favorite = cursor.getString(cursor.getColumnIndexOrThrow(COLUMN_FAVORITE));
-                if(favorite.equals(title)){
+                if (favorite.equals(title)) {
                     return true;
                 }
                 cursor.moveToNext();
@@ -369,17 +372,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int resultBack = 3;
 
         String truckName = data.getStringExtra("truckName");
-        if(requestCode == 1){
-            if(resultCode == resultFavorite){
+        if (requestCode == 1) {
+            if (resultCode == resultFavorite) {
                 Log.v(TAG, truckName);
                 favoriteHelper.insert(favoriteDB, truckName);
-            }
-            else if(resultCode == resultRemoveFavorite){
+            } else if (resultCode == resultRemoveFavorite) {
                 favoriteHelper.remove(favoriteDB, truckName);
-            }
-            else if(resultCode == resultBack){
+            } else if (resultCode == resultBack) {
 
             }
         }
+    }
+    //Step 3: Place database contents in arraylist
+    public ArrayList<FoodTruck> getMyFoodTrucks(){
+        ArrayList<FoodTruck> foodtrucks = new ArrayList<FoodTruck>();
+
+        Cursor cursor = foodtruckDB.query(FoodTruckDatabaseContact.TruckColumns.TABLE_NAME, cols, null, null, null, null, null);
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast())
+        {
+            FoodTruck f = cursorToFoodTruck(cursor);
+            foodtrucks.add(f);
+            cursor.moveToNext();
+        }
+        cursor.close();
+
+        return foodtrucks;
+    }
+
+    private FoodTruck cursorToFoodTruck(Cursor cursor) {
+        FoodTruck f = new FoodTruck();
+        f.setTruck(cursor.getString(0));
+        f.setLocation(cursor.getString(1));
+        return f;
     }
 }

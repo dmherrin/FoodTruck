@@ -16,6 +16,9 @@ public class FoodTruck {
         truck = t; location = l;
     }
 
+    public void setTruck(String truck) {
+        this.truck = truck;
+    }
     public String getYelpUrl()  {return yelpUrl;}
     public String getPhoneNumber()  {return phoneNumber;}
 
@@ -23,6 +26,10 @@ public class FoodTruck {
 
     public String getTruck()     {return truck;}
     public String getLocation() {return location;}
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
 
     public String toString() {
         return "Truck:\t" + truck + "\nLocation:\t" + location;
