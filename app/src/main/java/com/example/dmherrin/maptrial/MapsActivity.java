@@ -316,15 +316,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (tempTruck.getTruck().equals("baller")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 619-6830");
-                    intent.putExtra("menu", "");
+                    intent.putExtra("menu", "http://imgur.com/H8GqL3V.jpg");
                 } else if (tempTruck.getTruck().equals("nomads")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 435-5312");
-                    intent.putExtra("menu", "");
+                    intent.putExtra("menu", "http://imgur.com/zL20Fsp.jpg");
                 } else if (tempTruck.getTruck().equals("Off The Rails BBQ")) {
                     intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 856-4341");
-                    intent.putExtra("menu", "");
+                    intent.putExtra("menu", "N/A");
                 } else if (tempTruck.getTruck().equals("burton")) {
                     intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
                     intent.putExtra("phoneNumber", "");
@@ -336,7 +336,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 } else if (tempTruck.getTruck().equals("greenh")) {
                     intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
                     intent.putExtra("phoneNumber", "(479) 444-8909");
-                    intent.putExtra("menu", "");
+                    intent.putExtra("menu", "N/A");
                 }
             }
         }
