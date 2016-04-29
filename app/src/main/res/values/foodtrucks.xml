@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 <string-array name="foodtrucks">
-    <item>The Yacht Club</item>
     <item>Baller</item>
     <item>Nomad\'s Natural Plate</item>
     <item>Natural State Sandwiches</item>
     <item>Burton\'s Comfort Creamery</item>
     <item>Greenhouse Grill Food Cart</item>
-    <item>Kind Kitchen</item>
     <item>Off the Rails BBQ</item>
 </string-array>
 </resources>
