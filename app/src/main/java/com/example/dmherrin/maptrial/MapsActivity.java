@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
@@ -41,7 +43,7 @@ import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumn
 import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.TABLE_NAME;
 import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns._ID;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,OnMarkerClickListener,OnInfoWindowClickListener {
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,OnMarkerClickListener,OnInfoWindowClickListener,AdapterView.OnItemSelectedListener {
 
     public static final String TAG = "foodtruck";
     public static final String PROFILE = "dmherrin";
@@ -52,6 +54,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     ArrayList<FoodTruck> foodtruckArrayList;
     ArrayAdapter<FoodTruck> foodtruckArrayAdapter;
+
+    List<Marker> foodTruckMarkerList;
 
     Boolean isFavorite = false;
     private GoogleMap mMap;
@@ -79,14 +83,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 R.array.foodtrucks, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-
+        spinner.setOnItemSelectedListener(this);
 
         foodtruckArrayList = new ArrayList<>();
         foodtruckArrayAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, foodtruckArrayList);
 
-        //ListView earthquakeListView = (ListView)findViewById(R.id.quakeListView);
-        //earthquakeListView.setAdapter(earthquakeArrayAdapter);
+        foodTruckMarkerList = new ArrayList<>();
 
         favoriteHelper = new FavoriteSQLiteOpenHelper(this);
         favoriteDB = favoriteHelper.getWritableDatabase();
@@ -169,16 +172,44 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
+            Marker marker;
+
+            if(title1.compareTo("baller") == 0)
+            {
+                title1 = "Baller";
+            }
+            else if(title1.compareTo("nomads") == 0)
+            {
+                title1 = "Nomad's Natural Plate";
+            }
+            else if(title1.compareTo("nstate") == 0)
+            {
+                title1 = "Natural State Sandwiches";
+            }
+            else if(title1.compareTo("burton") == 0)
+            {
+                title1 = "Burton's Comfort Creamery";
+            }
+            else if(title1.compareTo("greenh") == 0)
+            {
+                title1 = "Greenhouse Grille Food Cart";
+            }
+            else if(title1.compareTo("otrbbq") == 0)
+            {
+                title1 = "Off The Rail BBQ";
+            }
+
             if (location != null) {
                 if (searchByTitle(title1)) {
-                    mMap.addMarker(new MarkerOptions().position(location)
+                    marker = mMap.addMarker(new MarkerOptions().position(location)
                             .title(title1)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48favorite)));
                 } else {
-                    mMap.addMarker(new MarkerOptions().position(location)
+                    marker = mMap.addMarker(new MarkerOptions().position(location)
                             .title(title1)
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
                 }
+                foodTruckMarkerList.add(marker);
             }
             Log.i(TAG, title1);
             Log.i(TAG, address);
@@ -237,10 +268,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         if (data.length == 2) {
                             final String truck = data[0];
                             final String location = data[1];
+
                             //Step 1: Add Truck, Location to FoodTruck Database
                             foodtruckHelper.remove(foodtruckDB, truck);
                             foodtruckHelper.insert(foodtruckDB, truck, location);
-                            //foodtruckArrayList.add(new FoodTruck(truck, location));
+//                            foodtruckArrayList.add(new FoodTruck(truck, location));
                             Log.v(TAG, "Truck added to arraylist");
                         }
 
@@ -308,38 +340,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = new Intent(MapsActivity.this, DisplayFoodTruckInfoActivity.class);
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
             tempTruck = foodtruckArrayList.get(i);
-            if (tempTruck.getTruck().equals(marker.getTitle())) {
-                intent.putExtra("truckName", tempTruck.getTruck());
-                intent.putExtra("location", tempTruck.getLocation());
-                isFavorite = searchByTitle(tempTruck.getTruck());
-                intent.putExtra("isFavorite", isFavorite);
-                if (tempTruck.getTruck().equals("baller")) {
-                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
-                    intent.putExtra("phoneNumber", "(479) 619-6830");
-                    intent.putExtra("menu", "http://imgur.com/H8GqL3V.jpg");
-                } else if (tempTruck.getTruck().equals("nomads")) {
-                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
-                    intent.putExtra("phoneNumber", "(479) 435-5312");
-                    intent.putExtra("menu", "http://imgur.com/zL20Fsp.jpg");
-                } else if (tempTruck.getTruck().equals("Off The Rails BBQ")) {
-                    intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
-                    intent.putExtra("phoneNumber", "(479) 856-4341");
-                    intent.putExtra("menu", "N/A");
-                } else if (tempTruck.getTruck().equals("burton")) {
-                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
-                    intent.putExtra("phoneNumber", "");
-                    intent.putExtra("menu", "http://www.burtonscreamery.com/");
-                } else if (tempTruck.getTruck().equals("nstate")) {
-                    intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
-                    intent.putExtra("phoneNumber", "(479) 225-1103");
-                    intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
-                } else if (tempTruck.getTruck().equals("greenh")) {
-                    intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
-                    intent.putExtra("phoneNumber", "(479) 444-8909");
-                    intent.putExtra("menu", "N/A");
-                }
+
+//                intent.putExtra("truckName", tempTruck.getTruck());
+            intent.putExtra("location", tempTruck.getLocation());
+            isFavorite = searchByTitle(tempTruck.getTruck());
+            intent.putExtra("isFavorite", isFavorite);
+            if (tempTruck.getTruck().equals("baller")) {
+                intent.putExtra("truckName","Baller");
+                intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
+                intent.putExtra("phoneNumber", "(479) 619-6830");
+                intent.putExtra("menu", "http://imgur.com/H8GqL3V.jpg");
+            } else if (tempTruck.getTruck().equals("nomads")) {
+                intent.putExtra("truckName","Nomad's Natural Plate");
+                intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
+                intent.putExtra("phoneNumber", "(479) 435-5312");
+                intent.putExtra("menu", "http://imgur.com/zL20Fsp.jpg");
+            } else if (tempTruck.getTruck().equals("otrbbq")) {
+                intent.putExtra("truckName","Off The Rail BBQ");
+                intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
+                intent.putExtra("phoneNumber", "(479) 856-4341");
+                intent.putExtra("menu", "N/A");
+            } else if (tempTruck.getTruck().equals("burton")) {
+                intent.putExtra("truckName","Burton's Comfort Creamery");
+                intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
+                intent.putExtra("phoneNumber", "");
+                intent.putExtra("menu", "http://www.burtonscreamery.com/");
+            } else if (tempTruck.getTruck().equals("nstate")) {
+                intent.putExtra("truckName","Natural State Sandwiches");
+                intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
+                intent.putExtra("phoneNumber", "(479) 225-1103");
+                intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
+            } else if (tempTruck.getTruck().equals("greenh")) {
+                intent.putExtra("truckName","Greenhouse Grille Food Cart");
+                intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
+                intent.putExtra("phoneNumber", "(479) 444-8909");
+                intent.putExtra("menu", "N/A");
             }
+            Log.v(TAG,tempTruck.getTruck());
+
         }
+
         startActivityForResult(intent, requestCode);
     }
 
@@ -405,5 +445,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         f.setTruck(cursor.getString(0));
         f.setLocation(cursor.getString(1));
         return f;
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        String selectedFoodTruckName = parent.getItemAtPosition(position).toString();
+
+        for(int i = 0; i < foodTruckMarkerList.size(); i++){
+
+            Marker marker = foodTruckMarkerList.get(i);
+            String title = marker.getTitle();
+
+            if (selectedFoodTruckName.equals("Baller") && title.equals("Baller")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            } else if (selectedFoodTruckName.equals("nomads") && title.equals("Nomad's Natural Plate")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            } else if (selectedFoodTruckName.equals("otrbbq") && title.equals("Off The Rail BBQ")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            } else if (selectedFoodTruckName.equals("nstate") && title.equals("Natural State Sandwiches")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            } else if (selectedFoodTruckName.equals("burton") && title.equals("Burton's Comfort Creamery")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            } else if (selectedFoodTruckName.equals("greenh") && title.equals("Greenhouse Grille Food Cart")) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+            }
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
     }
 }
