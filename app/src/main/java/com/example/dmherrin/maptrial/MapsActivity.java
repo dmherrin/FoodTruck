@@ -173,7 +173,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (searchByTitle(title1)) {
                     mMap.addMarker(new MarkerOptions().position(location)
                             .title(title1)
-                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48favorite)));
                 } else {
                     mMap.addMarker(new MarkerOptions().position(location)
                             .title(title1)
