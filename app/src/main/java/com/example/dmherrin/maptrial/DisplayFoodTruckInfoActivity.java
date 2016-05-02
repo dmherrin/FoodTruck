@@ -40,31 +40,6 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
         }
         TextView truckName = (TextView)findViewById(R.id.food_truck_name);
         truckName.setText(name);
-//        if(name.compareTo("baller") == 0)
-//        {
-//            truckName.setText("Baller");
-//        }
-//        else if(name.compareTo("nomads") == 0)
-//        {
-//            truckName.setText("Nomad's Natural Plate");
-//        }
-//        else if(name.compareTo("nstate") == 0)
-//        {
-//            truckName.setText("Natural State Sandwiches");
-//        }
-//        else if(name.compareTo("burton") == 0)
-//        {
-//            truckName.setText("Burton's Comfort Creamery");
-//        }
-//        else if(name.compareTo("greenh") == 0)
-//        {
-//            truckName.setText("Greenhouse Grille Food Cart");
-//        }
-//        else if(name.compareTo("otrbbq") == 0)
-//        {
-//            truckName.setText("Off The Rail BBQ");
-//        }
-        Log.v(TAG,name);
 
         TextView truckAddress = (TextView)findViewById(R.id.address);
         truckAddress.setText(address);
@@ -90,7 +65,6 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
         Intent intent = new Intent(DisplayFoodTruckInfoActivity.this,MapsActivity.class);
         intent.putExtra("truckName",name);
-        Log.v(TAG,name);
         setResult(1,intent);
         finish();
     }

@@ -71,10 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-//        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-//                .findFragmentById(R.id.map);
-//        mapFragment.getMapAsync(this);
+
         //Spinner creates drop-down listview-type menu that can be accessed by clicking next to the app name
         Spinner spinner = (Spinner) findViewById(R.id.spinner);
         spinner.getBackground().setColorFilter(getResources().getColor(R.color.colorUltraLight), PorterDuff.Mode.SRC_ATOP);
@@ -97,8 +94,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         foodtruckHelper = new FoodTruckSQLiteOpenHelper(this);
         foodtruckDB = foodtruckHelper.getWritableDatabase();
 
-        Log.i(TAG, "in onDownloadFoodtrucks");
-
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -112,18 +107,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-/*
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                download();
-            }
-        };
-        Thread t = new Thread(r);
-        t.start();*/
-
-        //SharedPreferences sp = getSharedPreferences(PROFILE, Activity.MODE_PRIVATE);
-        //minMagnitude = sp.getFloat(MAG_KEY, 0f);
 
     }
 
@@ -164,11 +147,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Step 2: Call function to put database contents in arraylist
         foodtruckArrayList = getMyFoodTrucks();
 
-
-        Log.i(TAG, "Before for loop");
         //Step 4: Iterate through arraylist and addmarkers for each database object
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
-            Log.i(TAG, "In for loop");
+
             String address = foodtruckArrayList.get(i).getLocation();
             String title1 = foodtruckArrayList.get(i).getTruck();
             LatLng location = getLocationFromAddress(this, address);
@@ -192,11 +173,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             else if(title1.compareTo("greenh") == 0)
             {
-                title1 = "Greenhouse Grille Food Cart";
+                title1 = "Greenhouse Grill Food Cart";
             }
             else if(title1.compareTo("otrbbq") == 0)
             {
-                title1 = "Off The Rail BBQ";
+                title1 = "Off The Rails BBQ";
             }
 
             if (location != null) {
@@ -211,30 +192,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
                 foodTruckMarkerList.add(marker);
             }
-            Log.i(TAG, title1);
-            Log.i(TAG, address);
-
 
         }
-        // Hard codes the position for the following locations
-        /*LatLng YachtClub = new LatLng(36.071926, -94.157825);
-        LatLng Baller = new LatLng(36.120140, -94.150971);
-        LatLng Nomad = new LatLng(36.066036, -94.161964);
-        LatLng NaturalState = new LatLng(36.077075, -94.168486);
-        LatLng Burton = new LatLng(36.066425, -94.163760);
-        LatLng Greenhouse = new LatLng(36.057590, -94.165408);
-        LatLng KindKitchen = new LatLng(36.371750, -94.210529);
-        LatLng OffTheRails = new LatLng(36.061613, -94.160861);
-        mMap.addMarker(new MarkerOptions().position(YachtClub).title("The Yacht Club").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(Baller).title("Baller").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(Nomad).title("Nomad's Natural Plate").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(NaturalState).title("Natural State Sandwiches").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(Burton).title("Burton's Comfort Creamery").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(Greenhouse).title("Greenhouse Grill Food Cart").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(KindKitchen).title("Kind Kitchen").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-        mMap.addMarker(new MarkerOptions().position(OffTheRails).title("Off the Rails BBQ").icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
-*/
-
 
     }
 
@@ -243,7 +202,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void download() {
 
-        Log.i(TAG, "in download");
 
         try {
             URL url = new URL(getString(R.string.foodtrucks_url));
@@ -258,13 +216,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 if (responseCode == HttpURLConnection.HTTP_OK) {
 
-                    Log.i(TAG, "HTTP OK");
-
                     String temp;
                     reader.readLine();
                     while ((temp = reader.readLine()) != null) {
                         String[] data = temp.split(",");
-                        Log.v(TAG, temp);
+
                         if (data.length == 2) {
                             final String truck = data[0];
                             final String location = data[1];
@@ -272,21 +228,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             //Step 1: Add Truck, Location to FoodTruck Database
                             foodtruckHelper.remove(foodtruckDB, truck);
                             foodtruckHelper.insert(foodtruckDB, truck, location);
-//                            foodtruckArrayList.add(new FoodTruck(truck, location));
-                            Log.v(TAG, "Truck added to arraylist");
                         }
-
-
-                        //mMap.addMarker(new MarkerOptions().position(truckLocation).title(truck).icon(BitmapDescriptorFactory.fromResource(R.drawable.mk2pin48)));
 
                     }
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            //foodtruckArrayAdapter.notifyDataSetChanged();
-                            //Log.i(TAG, foodtruckArrayList.toString());
-                        }
-                    });
                 }
             } finally {
                 ((HttpURLConnection) connection).disconnect();
@@ -341,7 +285,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
             tempTruck = foodtruckArrayList.get(i);
 
-//                intent.putExtra("truckName", tempTruck.getTruck());
             intent.putExtra("location", tempTruck.getLocation());
             isFavorite = searchByTitle(tempTruck.getTruck());
             intent.putExtra("isFavorite", isFavorite);
@@ -376,7 +319,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 intent.putExtra("phoneNumber", "(479) 444-8909");
                 intent.putExtra("menu", "N/A");
             }
-            Log.v(TAG,tempTruck.getTruck());
 
         }
 
@@ -455,8 +397,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             Marker marker = foodTruckMarkerList.get(i);
             String title = marker.getTitle();
-
-            Log.v(TAG, title);
 
             if (selectedFoodTruckName.equals(title)) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
