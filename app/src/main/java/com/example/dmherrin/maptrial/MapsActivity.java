@@ -371,7 +371,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 intent.putExtra("phoneNumber", "(479) 225-1103");
                 intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
             } else if (tempTruck.getTruck().equals("greenh")) {
-                intent.putExtra("truckName","Greenhouse Grille Food Cart");
+                intent.putExtra("truckName","Greenhouse Grill Food Cart");
                 intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 444-8909");
                 intent.putExtra("menu", "N/A");
@@ -456,18 +456,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Marker marker = foodTruckMarkerList.get(i);
             String title = marker.getTitle();
 
-            if (selectedFoodTruckName.equals("Baller") && title.equals("Baller")) {
+            Log.v(TAG, title);
+
+            if (selectedFoodTruckName.equals(title)) {
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
-            } else if (selectedFoodTruckName.equals("nomads") && title.equals("Nomad's Natural Plate")) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
-            } else if (selectedFoodTruckName.equals("otrbbq") && title.equals("Off The Rail BBQ")) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
-            } else if (selectedFoodTruckName.equals("nstate") && title.equals("Natural State Sandwiches")) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
-            } else if (selectedFoodTruckName.equals("burton") && title.equals("Burton's Comfort Creamery")) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
-            } else if (selectedFoodTruckName.equals("greenh") && title.equals("Greenhouse Grille Food Cart")) {
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(), 12.5f));
+                marker.showInfoWindow();
             }
         }
     }
