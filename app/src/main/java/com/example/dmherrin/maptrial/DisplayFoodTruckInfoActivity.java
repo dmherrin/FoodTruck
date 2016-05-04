@@ -1,11 +1,13 @@
 package com.example.dmherrin.maptrial;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
@@ -52,6 +54,40 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
         TextView truckMenu = (TextView)findViewById(R.id.menu);
         truckMenu.setText(menu);
+
+        ImageView image1 = (ImageView)findViewById(R.id.image1);
+//        ImageView image2 = (ImageView)findViewById(R.id.image2);
+//        ImageView image3 = (ImageView)findViewById(R.id.image3);
+
+        if(name.equals("Baller")){
+
+            image1.setImageResource(R.drawable.baller1);
+//            image2.setImageResource(R.drawable.baller2);
+        }
+        else if(name.equals("Nomad's Natural Plate")){
+
+            image1.setImageResource(R.drawable.nomad1);
+//            image2.setImageResource(R.drawable.nomad2);
+        }
+        else if(name.equals("Off The Rail BBQ")){
+
+            image1.setImageResource(R.drawable.offtherail1);
+        }
+        else if(name.equals("Burton's Comfort Creamery")){
+
+//            image1.setImageResource(R.drawable.burton1);
+//            image2.setImageResource(R.drawable.burton2);
+//            image3.setImageResource(R.drawable.burton3);
+        }
+        else if(name.equals("Natural State Sandwiches")){
+
+            image1.setImageResource(R.drawable.nstate1);
+//            image2.setImageResource(R.drawable.nstate2);
+        }
+        else if(name.equals("Greenhouse Grill Food Cart")){
+
+        }
+
 
     }
     public void onBack(View v){

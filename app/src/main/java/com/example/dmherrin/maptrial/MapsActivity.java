@@ -281,45 +281,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onInfoWindowClick(Marker marker) {
         int requestCode = 1;
         FoodTruck tempTruck;
+        String name = marker.getTitle();
         Intent intent = new Intent(MapsActivity.this, DisplayFoodTruckInfoActivity.class);
         for (int i = 0; i < foodtruckArrayList.size(); i++) {
             tempTruck = foodtruckArrayList.get(i);
 
+
             intent.putExtra("location", tempTruck.getLocation());
-            isFavorite = searchByTitle(tempTruck.getTruck());
+            isFavorite = searchByTitle(name);
             intent.putExtra("isFavorite", isFavorite);
-            if (tempTruck.getTruck().equals("baller")) {
+            if (tempTruck.getTruck().equals("baller") && name.equals("Baller")) {
                 intent.putExtra("truckName","Baller");
                 intent.putExtra("yelpPage", "http://www.yelp.com/biz/baller-food-truck-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 619-6830");
                 intent.putExtra("menu", "http://imgur.com/H8GqL3V.jpg");
-            } else if (tempTruck.getTruck().equals("nomads")) {
+            } else if (tempTruck.getTruck().equals("nomads") && name.equals("Nomad's Natural Plate")) {
                 intent.putExtra("truckName","Nomad's Natural Plate");
                 intent.putExtra("yelpPage", "http://www.yelp.com/biz/nomads-natural-plate-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 435-5312");
                 intent.putExtra("menu", "http://imgur.com/zL20Fsp.jpg");
-            } else if (tempTruck.getTruck().equals("otrbbq")) {
+            } else if (tempTruck.getTruck().equals("otrbbq") && name.equals("Off The Rail BBQ")) {
                 intent.putExtra("truckName","Off The Rail BBQ");
                 intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/off-the-rail-bbq-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 856-4341");
                 intent.putExtra("menu", "N/A");
-            } else if (tempTruck.getTruck().equals("burton")) {
+            } else if (tempTruck.getTruck().equals("burton") && name.equals("Burton's Comfort Creamery")) {
                 intent.putExtra("truckName","Burton's Comfort Creamery");
                 intent.putExtra("yelpPage", "http://www.yelp.com/biz/burtons-comfort-creamery-fayetteville");
                 intent.putExtra("phoneNumber", "");
                 intent.putExtra("menu", "http://www.burtonscreamery.com/");
-            } else if (tempTruck.getTruck().equals("nstate")) {
+            } else if (tempTruck.getTruck().equals("nstate") && name.equals("Natural State Sandwiches")) {
                 intent.putExtra("truckName","Natural State Sandwiches");
                 intent.putExtra("yelpPage", "http://www.yelp.com/biz/natural-state-sandwiches-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 225-1103");
                 intent.putExtra("menu", "http://www.naturalstatesandwiches.com/#!menu/c1aeq");
-            } else if (tempTruck.getTruck().equals("greenh")) {
+            } else if (tempTruck.getTruck().equals("greenh") && name.equals("Greenhouse Grill Food Cart")) {
                 intent.putExtra("truckName","Greenhouse Grill Food Cart");
                 intent.putExtra("yelpPage", "https://www.zomato.com/northwest-arkansas/greenhouse-grille-food-cart-fayetteville");
                 intent.putExtra("phoneNumber", "(479) 444-8909");
                 intent.putExtra("menu", "N/A");
             }
-
         }
 
         startActivityForResult(intent, requestCode);
