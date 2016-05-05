@@ -3,15 +3,16 @@ package com.example.dmherrin.maptrial;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
 
     public static final String TAG = "displayinfo";
     String name;
+    String dbname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +22,7 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
         Intent intent = getIntent();
         Boolean isFavorite = intent.getBooleanExtra("isFavorite",false);
         name = intent.getStringExtra("truckName");
+        dbname = intent.getStringExtra("truckDBName");
         String address = intent.getStringExtra("location");
         String yelpPage = intent.getStringExtra("yelpPage");
         String phoneNumber = intent.getStringExtra("phoneNumber");
@@ -39,32 +41,7 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
             favoriteButton.setEnabled(true);
         }
         TextView truckName = (TextView)findViewById(R.id.food_truck_name);
-        //truckName.setText(name);
-        if(name.compareTo("baller") == 0)
-        {
-            truckName.setText("Baller");
-        }
-        else if(name.compareTo("nomads") == 0)
-        {
-            truckName.setText("Nomad's Natural Plate");
-        }
-        else if(name.compareTo("nstate") == 0)
-        {
-            truckName.setText("Natural State Sandwiches");
-        }
-        else if(name.compareTo("burton") == 0)
-        {
-            truckName.setText("Burton's Comfort Creamery");
-        }
-        else if(name.compareTo("greenh") == 0)
-        {
-            truckName.setText("Greenhouse Grille Food Cart");
-        }
-        else if(name.compareTo("otrbbq") == 0)
-        {
-            truckName.setText("Off The Rail BBQ");
-        }
-        Log.v(TAG,name);
+        truckName.setText(name);
 
         TextView truckAddress = (TextView)findViewById(R.id.address);
         truckAddress.setText(address);
@@ -78,6 +55,40 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
         TextView truckMenu = (TextView)findViewById(R.id.menu);
         truckMenu.setText(menu);
 
+        ImageView image1 = (ImageView)findViewById(R.id.image1);
+//        ImageView image2 = (ImageView)findViewById(R.id.image2);
+//        ImageView image3 = (ImageView)findViewById(R.id.image3);
+
+        if(name.equals("Baller")){
+
+            image1.setImageResource(R.drawable.baller1);
+//            image2.setImageResource(R.drawable.baller2);
+        }
+        else if(name.equals("Nomad's Natural Plate")){
+
+            image1.setImageResource(R.drawable.nomad1);
+//            image2.setImageResource(R.drawable.nomad2);
+        }
+        else if(name.equals("Off The Rail BBQ")){
+
+            image1.setImageResource(R.drawable.offtherail1);
+        }
+        else if(name.equals("Burton's Comfort Creamery")){
+
+           image1.setImageResource(R.drawable.burton1);
+//            image2.setImageResource(R.drawable.burton2);
+//            image3.setImageResource(R.drawable.burton3);
+        }
+        else if(name.equals("Natural State Sandwiches")){
+
+            image1.setImageResource(R.drawable.nstate1);
+//            image2.setImageResource(R.drawable.nstate2);
+        }
+        else if(name.equals("Greenhouse Grille Food Cart")){
+            image1.setImageResource(R.drawable.greenh1);
+        }
+
+
     }
     public void onBack(View v){
 
@@ -89,8 +100,8 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
     public void onFavorite(View v) {
 
         Intent intent = new Intent(DisplayFoodTruckInfoActivity.this,MapsActivity.class);
-        intent.putExtra("truckName",name);
-        Log.v(TAG,name);
+        intent.putExtra("truckDBName",dbname);
+        intent.putExtra("truckName", name);
         setResult(1,intent);
         finish();
     }
@@ -98,7 +109,7 @@ public class DisplayFoodTruckInfoActivity extends AppCompatActivity {
     public void onRemoveFavorite(View v){
 
         Intent intent = new Intent(DisplayFoodTruckInfoActivity.this,MapsActivity.class);
-        intent.putExtra("truckName",name);
+        intent.putExtra("truckDBName",dbname);
         setResult(2,intent);
         finish();
     }

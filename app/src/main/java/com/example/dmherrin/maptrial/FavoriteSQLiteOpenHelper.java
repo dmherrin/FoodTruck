@@ -13,9 +13,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.Marker;
-
-import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.*;
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.COLUMN_FAVORITE;
+import static com.example.dmherrin.maptrial.FavoriteDatabaseContract.QuakeColumns.TABLE_NAME;
 
 public class FavoriteSQLiteOpenHelper extends SQLiteOpenHelper{
 
@@ -43,10 +42,11 @@ public class FavoriteSQLiteOpenHelper extends SQLiteOpenHelper{
     }
 
     // method for inserting MyMarker objects into the database
-    public void insert(SQLiteDatabase db, String favoriteTruckName) {
+    public void insert(SQLiteDatabase db, String favoriteTruckName, String favoriteStar) {
         ContentValues values = new ContentValues();
 
         values.put(FavoriteDatabaseContract.QuakeColumns.COLUMN_FAVORITE, favoriteTruckName);
+        values.put(FavoriteDatabaseContract.QuakeColumns.COLUMN_STAR, favoriteStar);
 
         db.insert(FavoriteDatabaseContract.QuakeColumns.TABLE_NAME, null, values);
     }
