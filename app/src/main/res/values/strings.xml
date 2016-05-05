@@ -9,4 +9,5 @@
     <string name="truck_address">Address:</string>
     <string name="mark_as_favorite">Mark As Favorite</string>
     <string name="remove_favorite">Remove Favorite</string>
+    <string name="find">Find A FoodTruck</string>
 </resources>
